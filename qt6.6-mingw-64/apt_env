@@ -1,0 +1,20 @@
+sudo apt update
+
+echo '--> Save the original installed packages list'
+
+dpkg --get-selections | cut -f 1 > /tmp/packages_orig.lst
+
+alias add_pkg='sudo -E apt install -y --no-install-suggests --no-install-recommends'
+
+exit_env(){
+    echo '--> Restore the packages list to the original state'
+
+    dpkg --get-selections | cut -f 1 > /tmp/packages_curr.lst
+    grep -Fxv -f /tmp/packages_orig.lst /tmp/packages_curr.lst | xargs sudo -E apt remove -y --purge
+
+    # Complete the cleaning
+
+    sudo -E apt -qq clean
+    sudo -E rm -rf /var/lib/apt/lists/* /tmp/*
+}
+
